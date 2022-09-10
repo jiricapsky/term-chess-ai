@@ -275,6 +275,7 @@ class Chessboard:
         count_left = self.squares_to_edge(start_index, OFFSETS[2])
         count_right = self.squares_to_edge(start_index, OFFSETS[3])
         
+        # just some comment
 
         return moves
 
