@@ -278,88 +278,46 @@ class Chessboard:
         count_left = self.squares_to_edge[start_index, 2]
         count_right = self.squares_to_edge[start_index, 3]
         
-        # check possible tiles one by one
-        #
-        #    2   1 
-        #  4       3
-        #      X
-        #  5       6
-        #    7   8
-        #
+        vert_bounds = [count_top, count_bot]
 
-        if count_top > 1:
-            if count_right > 0:
-                target_index = start_index + OFFSETS[0] * 2 + 1
-                target_r, target_c = index_to_loc(target_index)
-                target_piece = self.board.loc[target_r, target_c].piece
-                
-                # not blocked by firendly piece
-                if target_piece.player != piece.player:
-                    moves.append(Move(start_index, target_index))
-            if count_left > 0:
-                target_index = start_index + OFFSETS[0] * 2 - 1
-                target_r, target_c = index_to_loc(target_index)
-                target_piece = self.board.loc[target_r, target_c].piece
-                
-                # not blocked by firendly piece
-                if target_piece.player != piece.player:
-                    moves.append(Move(start_index, target_index))
-        
-        if count_top > 0:
-            if count_right > 1:
-                target_index = start_index + OFFSETS[0] + 2
-                target_r, target_c = index_to_loc(target_index)
-                target_piece = self.board.loc[target_r, target_c].piece
-                
-                # not blocked by firendly piece
-                if target_piece.player != piece.player:
-                    moves.append(Move(start_index, target_index))
-            if count_left > 1:
-                target_index = start_index + OFFSETS[0] - 2
-                target_r, target_c = index_to_loc(target_index)
-                target_piece = self.board.loc[target_r, target_c].piece
-                
-                # not blocked by firendly piece
-                if target_piece.player != piece.player:
-                    moves.append(Move(start_index, target_index))
-
-        if count_bot > 1:
-            if count_right > 0:
-                target_index = start_index + OFFSETS[1] * 2 + 1
-                target_r, target_c = index_to_loc(target_index)
-                target_piece = self.board.loc[target_r, target_c].piece
-                
-                # not blocked by firendly piece
-                if target_piece.player != piece.player:
-                    moves.append(Move(start_index, target_index))
-            if count_left > 0:
-                target_index = start_index + OFFSETS[1] * 2 - 1
-                target_r, target_c = index_to_loc(target_index)
-                target_piece = self.board.loc[target_r, target_c].piece
-                
-                # not blocked by firendly piece
-                if target_piece.player != piece.player:
-                    moves.append(Move(start_index, target_index))
-        
-        if count_bot > 0:
-            if count_right > 1:
-                target_index = start_index + OFFSETS[1] + 2
-                target_r, target_c = index_to_loc(target_index)
-                target_piece = self.board.loc[target_r, target_c].piece
-                
-                # not blocked by firendly piece
-                if target_piece.player != piece.player:
-                    moves.append(Move(start_index, target_index))
-            if count_left > 1:
-                target_index = start_index + OFFSETS[1] - 2
-                target_r, target_c = index_to_loc(target_index)
-                target_piece = self.board.loc[target_r, target_c].piece
-                
-                # not blocked by firendly piece
-                if target_piece.player != piece.player:
-                    moves.append(Move(start_index, target_index))
-        
+        for i in range(2): 
+            if vert_bounds[i] > 1:
+                if count_right > 0:
+                    target_index = start_index + OFFSETS[i] * 2 + 1
+                    target_r, target_c = index_to_loc(target_index)
+                    target_piece = self.board.loc[target_r, target_c].piece
+                    
+                    # not blocked by firendly piece
+                    if target_piece.player != piece.player:
+                        moves.append(Move(start_index, target_index))
+                if count_left > 0:
+                    target_index = start_index + OFFSETS[i] * 2 - 1
+                    target_r, target_c = index_to_loc(target_index)
+                    target_piece = self.board.loc[target_r, target_c].piece
+                    
+                    # not blocked by firendly piece
+                    if target_piece.player != piece.player:
+                        moves.append(Move(start_index, target_index))
+            
+            if vert_bounds[i] > 0:
+                if count_right > 1:
+                    target_index = start_index + OFFSETS[i] + 2
+                    target_r, target_c = index_to_loc(target_index)
+                    target_piece = self.board.loc[target_r, target_c].piece
+                    
+                    # not blocked by firendly piece
+                    if target_piece.player != piece.player:
+                        moves.append(Move(start_index, target_index))
+                if count_left > 1:
+                    target_index = start_index + OFFSETS[i] - 2
+                    target_r, target_c = index_to_loc(target_index)
+                    target_piece = self.board.loc[target_r, target_c].piece
+                    
+                    # not blocked by firendly piece
+                    if target_piece.player != piece.player:
+                        moves.append(Move(start_index, target_index))
         return moves
+
 
 def draw_board(board_pd):
     board = ''
