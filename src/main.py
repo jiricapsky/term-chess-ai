@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
         elif splitted[0] == 'move':
 
-            if is_valid_move := move(chessboard.board, splitted[1:], active_player):
+            if is_valid_move := move(chessboard.board, splitted[1:], active_player, moves):
                 active_player = 1 if active_player == 0 else 0 
         
         elif splitted[0] == 'show':

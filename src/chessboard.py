@@ -123,7 +123,6 @@ class Chessboard:
         board_np = np.full((8, 8), Tile(Piece(TILE_EMPTY, False, FG_EMPTY), BG_DARK))
 
         # initialize pieces
-        board_np[1, :] = Tile(Piece(PAWN,   False, FG_DARK), BG_DARK)
         board_np[0, 0] = Tile(Piece(ROOK,   True,  FG_DARK), BG_DARK)
         board_np[0, 1] = Tile(Piece(HORSE,  False, FG_DARK), BG_DARK)
         board_np[0, 2] = Tile(Piece(BISHOP, True,  FG_DARK), BG_DARK)
@@ -133,7 +132,6 @@ class Chessboard:
         board_np[0, 6] = Tile(Piece(HORSE,  False, FG_DARK), BG_DARK)
         board_np[0, 7] = Tile(Piece(ROOK,   True,  FG_DARK), BG_DARK)
         
-        board_np[6, :] = Tile(Piece(PAWN,   False, FG_LIGHT), BG_DARK)
         board_np[7, 0] = Tile(Piece(ROOK,   True,  FG_LIGHT), BG_DARK)
         board_np[7, 1] = Tile(Piece(HORSE,  False, FG_LIGHT), BG_DARK)
         board_np[7, 2] = Tile(Piece(BISHOP, True,  FG_LIGHT), BG_DARK)
@@ -142,6 +140,11 @@ class Chessboard:
         board_np[7, 5] = Tile(Piece(BISHOP, True,  FG_LIGHT), BG_DARK)
         board_np[7, 6] = Tile(Piece(HORSE,  False, FG_LIGHT), BG_DARK)
         board_np[7, 7] = Tile(Piece(ROOK,   True,  FG_LIGHT), BG_DARK)
+        
+        for col in range(8):
+            board_np[1, col] = Tile(Piece(PAWN, False, FG_DARK), BG_DARK)
+            board_np[6, col] = Tile(Piece(PAWN, False, FG_LIGHT), BG_DARK)
+            
 
         for r, c in itertools.product(range(8), range(8)):
             color = BG_LIGHT if (r + c) % 2 != 0 else BG_DARK
@@ -375,15 +378,14 @@ def _edit_board(board, start_index, target_index):
     
     return b
     
-def move(board: pd.DataFrame, commands, player):
-    # sourcery skip: instance-method-first-arg-name
+def move(board: pd.DataFrame, commands, player, moves):
     if len(commands) < 2:
         logging.warning('Not enough commands')
         return False
     
     c_old, r_old = [*commands[0]]
-    c_new, r_new = [*commands[1]] 
-    
+    c_new, r_new = [*commands[1]]
+
     try:
         r_old = int(r_old)
         r_new = int(r_new)
@@ -393,16 +395,21 @@ def move(board: pd.DataFrame, commands, player):
     tile_old = board.loc[r_old, c_old]
     tile_new = board.loc[r_new, c_new]
 
-    if r_old not in range(1, 9):    return False
-    if c_old not in COL_NAMES:      return False
+    if r_old not in range(1, 9): return False
+    if c_old not in COL_NAMES: return False
     if tile_old.piece.player != player: return False
+    
+    index_old = str_to_index(commands[0])
+    index_new = str_to_index(commands[1])
+    is_valid_move = any((move.start == index_old) & (move.target == index_new) for move in moves)
+    
+    if not is_valid_move: return False
 
     if tile_old.piece.is_first_move:
         tile_old.piece.is_first_move = False
-
     board._set_value(r_new, c_new, Tile(tile_old.piece, tile_new.color))
     board._set_value(r_old, c_old, Tile(Piece(TILE_EMPTY, False, FG_EMPTY), tile_old.color))
-    
+
     return True
 
 def show_moves(board: pd.DataFrame, piece_loc, moves):
