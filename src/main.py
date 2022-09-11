@@ -20,7 +20,7 @@ if __name__ == '__main__':
         else:
             draw_board(chessboard.board)
 
-        moves = chessboard.generate_moves(active_player)
+        moves = chessboard.generate_legal_moves(active_player)
         
         input_prefix = format_text(f'> Player {active_player}: ', is_fg_light=active_player == 0, add_bg=False)
         text = input(input_prefix)

@@ -174,15 +174,15 @@ class Chessboard:
                 min(down, left)
             ]
         
-    def generate_moves(self, player):
+    def generate_moves(self, player, board=None):
+        if board is None:
+            board = self.board
         moves = []
-
-        # check each tile for pieces of active player
         for tile_index in range(64):
             r, c = index_to_loc(tile_index)
-            piece = self.board.loc[r, c].piece
+            piece = board.loc[r, c].piece
             if piece.player == player:
-                if piece.is_sliding: 
+                if piece.is_sliding:
                     new_moves = self.generate_sliding_moves(tile_index, piece)
                     moves = [*moves, *new_moves]
                 elif piece.name == KING:
@@ -194,10 +194,41 @@ class Chessboard:
                 elif piece.name == HORSE:
                     new_moves = self.generate_horse_moves(tile_index, piece)
                     moves = [*moves, *new_moves]
+        return np.array(moves).flatten()
+    
+    def generate_legal_moves(self, player):
+        pseudo_moves = self.generate_moves(player)
+        legal_moves = []
+        board_backup = self.board.copy()
+        oponent = P1 if player == P0 else P0
+        king_r, king_c = self.piece_location(KING, player)
+        king_index = str_to_index(str(king_c) + str(king_r))
+        
+        for move in pseudo_moves:
+            board_after_move = _edit_board(board_backup, move.start, move.target)
+            oponent_moves = self.generate_moves(oponent, board_after_move)
+            
+            # check if king has been moved
+            if move.start == king_index:
+                found_invalid = any(oponent_move.target == move.target for oponent_move in oponent_moves)
+            else:
+                found_invalid = any(oponent_move.target == king_index for oponent_move in oponent_moves)
+            
+            
+            if found_invalid:
+                print(f'king under attack here: {king_c}{king_r}')
+                continue
+            legal_moves.append(move)
+        
+        return np.array(legal_moves).flatten()
 
-        moves_flat = np.array(moves)
-        print(moves_flat)
-        return moves_flat
+    def piece_location(self, name, player):
+        for row, col in itertools.product(range(1, 9), COL_NAMES):
+            selected_piece = self.board.loc[row, col].piece
+            if (selected_piece.name == name) & (selected_piece.player == player):
+                print(f'found K: {col}{row}')
+                return row, col
+        return None, None
         
     def generate_sliding_moves(self, start_index, piece):
         moves = []
@@ -332,7 +363,18 @@ def draw_board(board_pd):
     board += f'   {col_names}'
     print(board)
 
-
+def _edit_board(board, start_index, target_index):
+    b = board.copy()
+    r_old, c_old = index_to_loc(start_index)
+    r_new, c_new = index_to_loc(target_index)
+    tile_old = b.loc[r_old, c_old]
+    tile_new = b.loc[r_new, c_new]
+    
+    b._set_value(r_new, c_new, Tile(tile_old.piece, tile_new.color))
+    b._set_value(r_old, c_old, Tile(Piece(TILE_EMPTY, False, FG_EMPTY), tile_old.color))
+    
+    return b
+    
 def move(board: pd.DataFrame, commands, player):
     # sourcery skip: instance-method-first-arg-name
     if len(commands) < 2:
