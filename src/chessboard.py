@@ -378,6 +378,16 @@ def _edit_board(board, start_index, target_index):
     
     return b
     
+def move_lazy(board, start, target):
+    r_old, c_old = index_to_loc(start)
+    r_new, c_new = index_to_loc(target)
+    tile_old = board.loc[r_old, c_old]
+    tile_new = board.loc[r_new, c_new]
+    
+    board._set_value(r_new, c_new, Tile(tile_old.piece, tile_new.color))
+    board._set_value(r_old, c_old, Tile(Piece(TILE_EMPTY, False, FG_EMPTY), tile_old.color))
+    
+
 def move(board: pd.DataFrame, commands, player, moves):
     if len(commands) < 2:
         logging.warning('Not enough commands')
