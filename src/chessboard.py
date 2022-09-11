@@ -216,7 +216,7 @@ class Chessboard:
             
             
             if found_invalid:
-                print(f'king under attack here: {king_c}{king_r}')
+                print(f'{move.start} -> {move.target} ==> king under attack here: {king_c}{king_r}')
                 continue
             legal_moves.append(move)
         
@@ -396,6 +396,9 @@ def move(board: pd.DataFrame, commands, player):
     if r_old not in range(1, 9):    return False
     if c_old not in COL_NAMES:      return False
     if tile_old.piece.player != player: return False
+
+    if tile_old.piece.is_first_move:
+        tile_old.piece.is_first_move = False
 
     board._set_value(r_new, c_new, Tile(tile_old.piece, tile_new.color))
     board._set_value(r_old, c_old, Tile(Piece(TILE_EMPTY, False, FG_EMPTY), tile_old.color))
